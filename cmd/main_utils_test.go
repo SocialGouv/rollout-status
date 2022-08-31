@@ -61,16 +61,25 @@ func mockWrapper(deployments []appsv1.Deployment, replicaSets []appsv1.ReplicaSe
 }
 
 type StaticClient struct {
-	DeploymentList *appsv1.DeploymentList
-	ReplicaSetList *appsv1.ReplicaSetList
-	PodList        *v1.PodList
+	DeploymentList  *appsv1.DeploymentList
+	ReplicaSetList  *appsv1.ReplicaSetList
+	StatefulSetList *appsv1.StatefulSetList
+	PodList         *v1.PodList
 }
 
 func (client StaticClient) ListAppsV1Deployments(namespace, selector string) (*appsv1.DeploymentList, error) {
 	return client.DeploymentList, nil
 }
 
+func (client StaticClient) ListAppsV1StatefulSets(namespace, selector string) (*appsv1.StatefulSetList, error) {
+	return client.StatefulSetList, nil
+}
+
 func (client StaticClient) ListAppsV1ReplicaSets(deployment *appsv1.Deployment) (*appsv1.ReplicaSetList, error) {
+	return client.ReplicaSetList, nil
+}
+
+func (client StaticClient) ListAppsV1StsReplicaSets(sts *appsv1.StatefulSet) (*appsv1.ReplicaSetList, error) {
 	return client.ReplicaSetList, nil
 }
 
