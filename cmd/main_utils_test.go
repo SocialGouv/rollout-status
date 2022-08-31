@@ -32,10 +32,12 @@ func mockWrapperFromAssets(name string) client.Kubernetes {
 
 	unmarshallAsset(assetPath("deployments.yaml"), &deploymentList)
 	unmarshallAsset(assetPath("replicasets.yaml"), &replicaSetList)
+	// unmarshallAsset(assetPath("statefulsets.yaml"), &statefulSetList)
 	unmarshallAsset(assetPath("pods.yaml"), &podList)
 
 	return StaticClient{
 		DeploymentList: &deploymentList,
+		// StatefulSetList: &statefulSetList,
 		ReplicaSetList: &replicaSetList,
 		PodList:        &podList,
 	}
@@ -52,11 +54,12 @@ func unmarshallAsset(path string, o interface{}) {
 	}
 }
 
-func mockWrapper(deployments []appsv1.Deployment, replicaSets []appsv1.ReplicaSet, pods []v1.Pod) client.Kubernetes {
+func mockWrapper(deployments []appsv1.Deployment, sts []appsv1.StatefulSet, replicaSets []appsv1.ReplicaSet, pods []v1.Pod) client.Kubernetes {
 	return StaticClient{
-		DeploymentList: &appsv1.DeploymentList{Items: deployments},
-		ReplicaSetList: &appsv1.ReplicaSetList{Items: replicaSets},
-		PodList:        &v1.PodList{Items: pods},
+		DeploymentList:  &appsv1.DeploymentList{Items: deployments},
+		StatefulSetList: &appsv1.StatefulSetList{Items: sts},
+		ReplicaSetList:  &appsv1.ReplicaSetList{Items: replicaSets},
+		PodList:         &v1.PodList{Items: pods},
 	}
 }
 

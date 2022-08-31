@@ -12,7 +12,7 @@ import (
 const IgnoredByMock = "any-value"
 
 func TestNotFound(t *testing.T) {
-	wrapper := mockWrapper([]appsv1.Deployment{}, []appsv1.ReplicaSet{}, []v1.Pod{})
+	wrapper := mockWrapper([]appsv1.Deployment{}, []appsv1.StatefulSet{}, []appsv1.ReplicaSet{}, []v1.Pod{})
 	rolloutStatus := status.TestRollout(wrapper, "any-ns", "foo=bar")
 
 	re, ok := rolloutStatus.Error.(status.RolloutError)

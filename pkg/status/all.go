@@ -15,8 +15,7 @@ func TestRollout(wrapper client.Kubernetes, namespace, selector string) RolloutS
 		return RolloutFatal(err)
 	}
 
-	// if (deployments.Items == nil || len(deployments.Items) == 0) && (statefulsets.Items == nil || len(statefulsets.Items) == 0) {
-	if len(deployments.Items) == 0 && (statefulsets == nil || statefulsets.Items == nil || statefulsets != nil || len(statefulsets.Items) == 0) {
+	if len(deployments.Items) == 0 && len(statefulsets.Items) == 0 {
 		err = MakeRolloutError(FailureNotFound, "Selector %q did not match any deployments or statefulsets in namespace %q", selector, namespace)
 		return RolloutFatal(err)
 	}
@@ -31,7 +30,8 @@ func TestRollout(wrapper client.Kubernetes, namespace, selector string) RolloutS
 			return *fatal
 		}
 	}
-	if statefulsets != nil && statefulsets.Items != nil {
+
+	if statefulsets != nil {
 		for _, statefulset := range statefulsets.Items {
 			status := StatefulsetStatus(wrapper, &statefulset)
 			aggr.Add(status)
