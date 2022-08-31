@@ -1,8 +1,9 @@
 package output
 
 import (
-	"github.com/socialgouv/rollout-status/pkg/client"
 	"io"
+
+	"github.com/SocialGouv/rollout-status/pkg/client"
 )
 
 type Output struct {

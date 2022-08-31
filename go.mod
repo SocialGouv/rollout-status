@@ -1,4 +1,4 @@
-module github.com/socialgouv/rollout-status
+module github.com/SocialGouv/rollout-status
 
 go 1.18
 

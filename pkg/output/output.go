@@ -3,7 +3,8 @@ package output
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/socialgouv/rollout-status/pkg/status"
+
+	"github.com/SocialGouv/rollout-status/pkg/status"
 )
 
 type outputType struct {

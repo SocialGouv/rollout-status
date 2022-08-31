@@ -1,12 +1,13 @@
 package main_test
 
 import (
-	"github.com/socialgouv/rollout-status/pkg/client"
 	"io/ioutil"
-	appsv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/core/v1"
 	"path/filepath"
 	"runtime"
+
+	"github.com/SocialGouv/rollout-status/pkg/client"
+	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 )
 

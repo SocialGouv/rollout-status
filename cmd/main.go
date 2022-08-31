@@ -3,14 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/socialgouv/rollout-status/pkg/client"
-	"github.com/socialgouv/rollout-status/pkg/output"
-	"github.com/socialgouv/rollout-status/pkg/status"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/SocialGouv/rollout-status/pkg/client"
+	"github.com/SocialGouv/rollout-status/pkg/output"
+	"github.com/SocialGouv/rollout-status/pkg/status"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 func main() {

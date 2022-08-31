@@ -43,7 +43,7 @@ Example
 -------
 
 ```console
-go run github.com/socialgouv/rollout-status/cmd -selector app=crashloop-backoff
+go run github.com/SocialGouv/rollout-status/cmd -selector app=crashloop-backoff
 ```
 ```json
 {
