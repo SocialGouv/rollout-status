@@ -56,8 +56,9 @@ golang.org/x/net/idna
 ## explicit; go 1.11
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
-# golang.org/x/sys v0.0.0-20190616124812-15dcb6c0061f
-## explicit; go 1.12
+# golang.org/x/sys v0.0.0-20220829200755-d48e67d00261
+## explicit; go 1.17
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.3.2
