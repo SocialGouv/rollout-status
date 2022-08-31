@@ -12,3 +12,7 @@ preflight:
 .PHONY: test
 test:
 	go test github.com/SocialGouv/rollout-status/...
+
+update:
+	go mod tidy
+	go mod vendor
