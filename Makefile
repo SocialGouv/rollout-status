@@ -14,11 +14,11 @@ publish: build
 .PHONY: preflight
 preflight:
 	go mod vendor
-	go fmt github.com/clusterise/rollout-status/...
+	go fmt github.com/socialgouv/rollout-status/...
 
 .PHONY: test
 test:
-	go test github.com/clusterise/rollout-status/...
+	go test github.com/socialgouv/rollout-status/...
 
 .PHONY: cleanup
 cleanup:

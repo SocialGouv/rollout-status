@@ -1,7 +1,7 @@
 package output
 
 import (
-	"github.com/clusterise/rollout-status/pkg/client"
+	"github.com/socialgouv/rollout-status/pkg/client"
 	"io"
 )
 

@@ -1,4 +1,4 @@
-module github.com/clusterise/rollout-status
+module github.com/socialgouv/rollout-status
 
 go 1.12
 

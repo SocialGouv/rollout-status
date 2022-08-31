@@ -1,7 +1,7 @@
 package status
 
 import (
-	"github.com/clusterise/rollout-status/pkg/client"
+	"github.com/socialgouv/rollout-status/pkg/client"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 )

@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/clusterise/rollout-status/pkg/client"
-	"github.com/clusterise/rollout-status/pkg/output"
-	"github.com/clusterise/rollout-status/pkg/status"
+	"github.com/socialgouv/rollout-status/pkg/client"
+	"github.com/socialgouv/rollout-status/pkg/output"
+	"github.com/socialgouv/rollout-status/pkg/status"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
