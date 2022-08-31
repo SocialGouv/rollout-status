@@ -1,5 +1,8 @@
 name: Go Release
-on: release
+on:
+  release:
+    types: [created]
+
 jobs:
   release-linux-386:
     name: release linux/386
