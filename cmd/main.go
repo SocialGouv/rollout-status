@@ -11,11 +11,13 @@ import (
 	"github.com/SocialGouv/rollout-status/pkg/status"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 func main() {
 	namespace := flag.String("namespace", "", "Namespace to watch rollout in")
 	selector := flag.String("selector", "", "Label selector to watch, kubectl format such as release=foo,component=frontend")
+	kubecontext := flag.String("kubecontext", "", "Kubeconfig context to use")
 
 	var kubeconfig *string
 	if home := homeDir(); home != "" {
@@ -26,7 +28,7 @@ func main() {
 
 	flag.Parse()
 
-	clientset := makeClientset(*kubeconfig)
+	clientset := makeClientset(*kubeconfig, *kubecontext)
 	wrapper := client.FromClientset(clientset)
 
 	for {
@@ -46,8 +48,11 @@ func main() {
 	}
 }
 
-func makeClientset(kubeconfigPath string) *kubernetes.Clientset {
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+func makeClientset(kubeconfigPath string, kubecontext string) *kubernetes.Clientset {
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
+		&clientcmd.ConfigOverrides{Context: clientcmdapi.Context{Cluster: kubecontext}}).ClientConfig()
+
 	if err != nil {
 		panic(err.Error())
 	}
