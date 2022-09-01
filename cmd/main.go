@@ -18,6 +18,7 @@ func main() {
 	namespace := flag.String("namespace", "", "Namespace to watch rollout in")
 	selector := flag.String("selector", "", "Label selector to watch, kubectl format such as release=foo,component=frontend")
 	kubecontext := flag.String("kubecontext", "", "Kubeconfig context to use")
+	interval := flag.String("interval", "5s", "Interval between status checks")
 
 	var kubeconfig *string
 	if home := homeDir(); home != "" {
@@ -30,6 +31,11 @@ func main() {
 
 	clientset := makeClientset(*kubeconfig, *kubecontext)
 	wrapper := client.FromClientset(clientset)
+
+	intervalTimeDuration, err := time.ParseDuration(*interval)
+	if err != nil {
+		panic(err)
+	}
 
 	for {
 		rollout := status.TestRollout(wrapper, *namespace, *selector)
@@ -44,7 +50,7 @@ func main() {
 			}
 			os.Exit(0)
 		}
-		time.Sleep(10 * time.Second) // TODO configure
+		time.Sleep(intervalTimeDuration)
 	}
 }
 
