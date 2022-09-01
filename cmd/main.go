@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -29,12 +28,6 @@ func main() {
 
 	clientset := makeClientset(*kubeconfig)
 	wrapper := client.FromClientset(clientset)
-
-	if *selector == "" {
-		fmt.Fprintf(os.Stderr, "Missing value for flag selector\n")
-		flag.Usage()
-		os.Exit(2)
-	}
 
 	for {
 		rollout := status.TestRollout(wrapper, *namespace, *selector)
