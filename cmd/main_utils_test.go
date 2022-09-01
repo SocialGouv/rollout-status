@@ -82,11 +82,11 @@ func (client StaticClient) ListAppsV1ReplicaSets(deployment *appsv1.Deployment) 
 	return client.ReplicaSetList, nil
 }
 
-func (client StaticClient) ListAppsV1StsReplicaSets(sts *appsv1.StatefulSet) (*appsv1.ReplicaSetList, error) {
-	return client.ReplicaSetList, nil
+func (client StaticClient) ListV1Pods(replicasSet *appsv1.ReplicaSet) (*v1.PodList, error) {
+	return client.PodList, nil
 }
 
-func (client StaticClient) ListV1Pods(replicasSet *appsv1.ReplicaSet) (*v1.PodList, error) {
+func (client StaticClient) ListV1StsPods(sts *appsv1.StatefulSet) (*v1.PodList, error) {
 	return client.PodList, nil
 }
 

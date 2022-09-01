@@ -34,15 +34,6 @@ func (impl KubernetesImpl) ListAppsV1ReplicaSets(deployment *appsv1.Deployment) 
 	return impl.clientset.AppsV1().ReplicaSets(deployment.Namespace).List(options)
 }
 
-func (impl KubernetesImpl) ListAppsV1StsReplicaSets(sts *appsv1.StatefulSet) (*appsv1.ReplicaSetList, error) {
-	selector, err := metav1.LabelSelectorAsSelector(sts.Spec.Selector)
-	if err != nil {
-		return nil, err
-	}
-	options := metav1.ListOptions{LabelSelector: selector.String()}
-	return impl.clientset.AppsV1().ReplicaSets(sts.Namespace).List(options)
-}
-
 func (impl KubernetesImpl) ListV1Pods(replicasSet *appsv1.ReplicaSet) (*v1.PodList, error) {
 	selector, err := metav1.LabelSelectorAsSelector(replicasSet.Spec.Selector)
 	if err != nil {
@@ -50,6 +41,15 @@ func (impl KubernetesImpl) ListV1Pods(replicasSet *appsv1.ReplicaSet) (*v1.PodLi
 	}
 	options := metav1.ListOptions{LabelSelector: selector.String()}
 	return impl.clientset.CoreV1().Pods(replicasSet.Namespace).List(options)
+}
+
+func (impl KubernetesImpl) ListV1StsPods(sts *appsv1.StatefulSet) (*v1.PodList, error) {
+	selector, err := metav1.LabelSelectorAsSelector(sts.Spec.Selector)
+	if err != nil {
+		return nil, err
+	}
+	options := metav1.ListOptions{LabelSelector: selector.String()}
+	return impl.clientset.CoreV1().Pods(sts.Namespace).List(options)
 }
 
 func (impl KubernetesImpl) TrailContainerLogs(namespace, pod, container string) ([]byte, error) {

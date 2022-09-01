@@ -14,6 +14,7 @@ const (
 	FailureResourceLimitsExceeded Failure = "resource-limits-exceeded"
 	FailureScheduling             Failure = "scheduling"
 	FailureNotProgressing         Failure = "not-progressing"
+	FailureNotSupportedStratedy   Failure = "not-supported-strategy"
 )
 
 type RolloutStatus struct {
