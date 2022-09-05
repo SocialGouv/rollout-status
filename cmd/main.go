@@ -21,7 +21,10 @@ func main() {
 	interval := flag.String("interval", "5s", "Interval between status checks")
 
 	var kubeconfig *string
-	if home := homeDir(); home != "" {
+	kubeconfigEnv := os.Getenv("KUBECONFIG")
+	if kubeconfigEnv != "" {
+		kubeconfig = flag.String("kubeconfig", kubeconfigEnv, "(optional) absolute path to the kubeconfig file")
+	} else if home := homeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	} else {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
