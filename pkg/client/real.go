@@ -5,8 +5,11 @@ import (
 	"io/ioutil"
 
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	selection "k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -34,6 +37,10 @@ func (impl KubernetesImpl) ListAppsV1ReplicaSets(deployment *appsv1.Deployment) 
 	return impl.clientset.AppsV1().ReplicaSets(deployment.Namespace).List(options)
 }
 
+func (impl KubernetesImpl) ListBatchV1Jobs(namespace, selector string) (*batchv1.JobList, error) {
+	return impl.clientset.BatchV1().Jobs(namespace).List(metav1.ListOptions{LabelSelector: selector})
+}
+
 func (impl KubernetesImpl) ListV1Pods(replicasSet *appsv1.ReplicaSet) (*v1.PodList, error) {
 	selector, err := metav1.LabelSelectorAsSelector(replicasSet.Spec.Selector)
 	if err != nil {
@@ -50,6 +57,21 @@ func (impl KubernetesImpl) ListV1StsPods(sts *appsv1.StatefulSet) (*v1.PodList, 
 	}
 	options := metav1.ListOptions{LabelSelector: selector.String()}
 	return impl.clientset.CoreV1().Pods(sts.Namespace).List(options)
+}
+
+func (impl KubernetesImpl) ListV1JobPods(job *batchv1.Job) (*v1.PodList, error) {
+	selector, err := metav1.LabelSelectorAsSelector(job.Spec.Selector)
+	if err != nil {
+		return nil, err
+	}
+	jobNameSelector := []string{job.ObjectMeta.Name}
+	jobNameRequirement, err := labels.NewRequirement("job-name", selection.DoubleEquals, jobNameSelector)
+	if err != nil {
+		return nil, err
+	}
+	selector.Add(*jobNameRequirement)
+	options := metav1.ListOptions{LabelSelector: selector.String()}
+	return impl.clientset.CoreV1().Pods(job.Namespace).List(options)
 }
 
 func (impl KubernetesImpl) TrailContainerLogs(namespace, pod, container string) ([]byte, error) {

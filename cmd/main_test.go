@@ -19,7 +19,7 @@ func TestNotFound(t *testing.T) {
 	assert.True(t, ok)
 
 	assert.False(t, rolloutStatus.Continue)
-	assert.Equal(t, `Selector "foo=bar" did not match any deployments or statefulsets in namespace "any-ns"`, re.Message)
+	assert.Equal(t, `Selector "foo=bar" did not match any deployments, statefulsets or jobs in namespace "any-ns"`, re.Message)
 }
 
 func TestSuccess(t *testing.T) {

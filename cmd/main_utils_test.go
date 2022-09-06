@@ -7,6 +7,7 @@ import (
 
 	"github.com/SocialGouv/rollout-status/pkg/client"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 )
@@ -67,6 +68,7 @@ type StaticClient struct {
 	DeploymentList  *appsv1.DeploymentList
 	ReplicaSetList  *appsv1.ReplicaSetList
 	StatefulSetList *appsv1.StatefulSetList
+	JobList         *batchv1.JobList
 	PodList         *v1.PodList
 }
 
@@ -82,11 +84,19 @@ func (client StaticClient) ListAppsV1ReplicaSets(deployment *appsv1.Deployment) 
 	return client.ReplicaSetList, nil
 }
 
+func (client StaticClient) ListBatchV1Jobs(namespace, selector string) (*batchv1.JobList, error) {
+	return client.JobList, nil
+}
+
 func (client StaticClient) ListV1Pods(replicasSet *appsv1.ReplicaSet) (*v1.PodList, error) {
 	return client.PodList, nil
 }
 
 func (client StaticClient) ListV1StsPods(sts *appsv1.StatefulSet) (*v1.PodList, error) {
+	return client.PodList, nil
+}
+
+func (client StaticClient) ListV1JobPods(job *batchv1.Job) (*v1.PodList, error) {
 	return client.PodList, nil
 }
 

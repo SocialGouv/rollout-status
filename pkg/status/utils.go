@@ -29,11 +29,11 @@ func (agg *Aggregator) Resolve() RolloutStatus {
 	for _, status := range agg.statuses {
 		if status.Error != nil {
 			hasErrors = true
-			break
+			// break
 		}
 		if status.Continue {
 			hasContinue = true
-			break
+			// break
 		}
 	}
 	if !hasErrors && !hasContinue {
@@ -46,5 +46,6 @@ func (agg *Aggregator) Resolve() RolloutStatus {
 			return status
 		}
 	}
+	// fmt.Printf("agg: %v\n", agg)
 	panic("invalid aggregator state")
 }
