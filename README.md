@@ -9,8 +9,7 @@ It is intended as a building block for your CI/CD pipeline. Unlike `kubectl` it 
 Usage
 -----
 
-Docker Image is [available on GitHub packages](https://hub.docker.com/repository/docker/clusterise/rollout-status
-).
+Docker Image is [available on GitHub packages]([https://hub.docker.com/repository/docker/clusterise/rollout-status](https://github.com/SocialGouv/rollout-status/pkgs/container/rollout-status)).
 
 ```console
 docker run -v "$HOME/.kube:/root/.kube:ro" ghcr.io/socialgouv/rollout-status:latest -namespace "$NAMESPACE" -selector "$SELECTOR"
