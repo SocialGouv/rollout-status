@@ -9,11 +9,10 @@ It is intended as a building block for your CI/CD pipeline. Unlike `kubectl` it 
 Usage
 -----
 
-Docker Image is [available on Docker Hub](https://hub.docker.com/repository/docker/clusterise/rollout-status
-).
+Docker Image is [available on GitHub packages](https://github.com/SocialGouv/rollout-status/pkgs/container/rollout-status).
 
 ```console
-docker run -v "$HOME/.kube:/root/.kube:ro" clusterise/rollout-status:1.2 -namespace "$NAMESPACE" -selector "$SELECTOR"
+docker run -v "$HOME/.kube:/root/.kube:ro" ghcr.io/socialgouv/rollout-status:latest -namespace "$NAMESPACE" -selector "$SELECTOR"
 ```
 
 Since the program is intended for a CI/CD pipeline, you will likely copy the binary to your own `linux-amd64` image:
@@ -21,7 +20,7 @@ Since the program is intended for a CI/CD pipeline, you will likely copy the bin
 ```Dockerfile
 # ...
 
-COPY --from=clusterise/rollout-status:1.2 /rollout-status /opt/rollout-status 
+COPY --from=ghcr.io/socialgouv/rollout-status:latest /rollout-status /opt/rollout-status 
 ```
 
 Overview of handled states
