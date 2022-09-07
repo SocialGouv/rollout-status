@@ -38,6 +38,9 @@ func TestContainerStatus(status *v1.ContainerStatus) RolloutStatus {
 			// TODO this should retry but have a deadline, all restarts fall to CrashLoopBackOff
 			err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q", status.Name, reason)
 			return RolloutFatal(err)
+		case "OOMKilled":
+			err := MakeRolloutError(FailureResourceLimitsExceeded, "Container %q is in %q", status.Name, reason)
+			return RolloutFatal(err)
 		}
 	}
 
