@@ -2,7 +2,7 @@ all: build
 
 .PHONY: build
 build: preflight
-	CGO_ENABLED=0 GOOS=linux go build -a -mod vendor -installsuffix cgo -o rollout-status github.com/SocialGouv/rollout-status/cmd
+	CGO_ENABLED=0 GOOS=linux go build -mod vendor -installsuffix cgo -o rollout-status github.com/SocialGouv/rollout-status/cmd
 
 .PHONY: preflight
 preflight:
