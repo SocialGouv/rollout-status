@@ -15,6 +15,7 @@ func TestJobStatus(wrapper client.Kubernetes, job batchv1.Job) RolloutStatus {
 	aggr := Aggregator{}
 	for _, pod := range podList.Items {
 		status := TestPodStatus(&pod)
+
 		aggr.Add(status)
 		if fatal := aggr.Fatal(); fatal != nil {
 			return *fatal
@@ -32,14 +33,22 @@ func JobStatus(wrapper client.Kubernetes, job *batchv1.Job) RolloutStatus {
 			aggr.Add(RolloutOk())
 			return aggr.Resolve()
 		}
+		if condition.Type == batchv1.JobFailed && condition.Status == v1.ConditionTrue {
+			status := TestJobStatus(wrapper, *job)
+			aggr.Add(status)
+			return aggr.Resolve()
+		}
 	}
 
 	status := TestJobStatus(wrapper, *job)
-	if job.Status.Failed >= (*job.Spec.BackoffLimit + 1) {
-		aggr.Add(status)
-	} else if status.Error != nil {
-		aggr.Add(RolloutErrorProgressing(status.Error))
+	if status.Error != nil {
+		if status.MaybeContinue {
+			aggr.Add(RolloutErrorProgressing(status.Error))
+		} else {
+			aggr.Add(status)
+		}
 	}
+
 	if fatal := aggr.Fatal(); fatal != nil {
 		return *fatal
 	}

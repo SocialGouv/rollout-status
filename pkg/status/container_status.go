@@ -15,11 +15,12 @@ func TestContainerStatus(status *v1.ContainerStatus) RolloutStatus {
 
 		case "CrashLoopBackOff":
 			// TODO this should retry but have a deadline, all restarts fall to CrashLoopBackOff
-			fallthrough
+			err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q: %v", status.Name, reason, status.State.Waiting.Message)
+			return RolloutFatal(err)
 		case "RunContainerError":
 			// TODO this should retry but have a deadline, all restarts fall to CrashLoopBackOff
 			err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q: %v", status.Name, reason, status.State.Waiting.Message)
-			return RolloutFatal(err)
+			return RolloutErrorMaybeProgressing(err)
 
 		case "ErrImagePull":
 			fallthrough
@@ -37,7 +38,7 @@ func TestContainerStatus(status *v1.ContainerStatus) RolloutStatus {
 		case "Error":
 			// TODO this should retry but have a deadline, all restarts fall to CrashLoopBackOff
 			err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q", status.Name, reason)
-			return RolloutFatal(err)
+			return RolloutErrorMaybeProgressing(err)
 		case "OOMKilled":
 			err := MakeRolloutError(FailureResourceLimitsExceeded, "Container %q is in %q", status.Name, reason)
 			return RolloutFatal(err)
