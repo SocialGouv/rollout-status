@@ -29,11 +29,11 @@ func (agg *Aggregator) Resolve() RolloutStatus {
 	for _, status := range agg.statuses {
 		if status.Error != nil {
 			hasErrors = true
-			// break
+			break
 		}
 		if status.Continue {
 			hasContinue = true
-			// break
+			break
 		}
 	}
 	if !hasErrors && !hasContinue {

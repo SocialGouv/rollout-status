@@ -44,11 +44,26 @@ func DeploymentStatus(wrapper client.Kubernetes, deployment *appsv1.Deployment) 
 	}
 
 	for _, condition := range deployment.Status.Conditions {
-		if condition.Type == appsv1.DeploymentProgressing && condition.Status == v1.ConditionFalse {
-			err := MakeRolloutError(FailureNotProgressing, "Deployment %q is not progressing: %v", deployment.Name, condition.Message)
-			aggr.Add(RolloutFatal(err))
-			break
+		if condition.Type == appsv1.DeploymentProgressing {
+			if condition.Status == v1.ConditionFalse {
+				err := MakeRolloutError(FailureNotProgressing, "Deployment %q is not progressing: %v", deployment.Name, condition.Message)
+				aggr.Add(RolloutFatal(err))
+				break
+			}
 		}
+	}
+
+	if deployment.Spec.Replicas != nil && deployment.Status.UpdatedReplicas < *deployment.Spec.Replicas {
+		err := fmt.Errorf("Waiting for deployment %q rollout to finish: %d out of %d new replicas have been updated...\n", deployment.Name, deployment.Status.UpdatedReplicas, *deployment.Spec.Replicas)
+		aggr.Add(RolloutErrorProgressing(err))
+	}
+	if deployment.Status.Replicas > deployment.Status.UpdatedReplicas {
+		err := fmt.Errorf("Waiting for deployment %q rollout to finish: %d old replicas are pending termination...\n", deployment.Name, deployment.Status.Replicas-deployment.Status.UpdatedReplicas)
+		aggr.Add(RolloutErrorProgressing(err))
+	}
+	if deployment.Status.AvailableReplicas < deployment.Status.UpdatedReplicas {
+		err := fmt.Errorf("Waiting for deployment %q rollout to finish: %d of %d updated replicas are available...\n", deployment.Name, deployment.Status.AvailableReplicas, deployment.Status.UpdatedReplicas)
+		aggr.Add(RolloutErrorProgressing(err))
 	}
 
 	return aggr.Resolve()
