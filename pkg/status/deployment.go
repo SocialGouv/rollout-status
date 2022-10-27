@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/SocialGouv/rollout-status/pkg/client"
+	"github.com/SocialGouv/rollout-status/pkg/config"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 )
@@ -11,7 +12,7 @@ import (
 // https://github.com/kubernetes/kubernetes/blob/dde6e8e7465468c32642659cb708a5cc922add64/staging/src/k8s.io/kubectl/pkg/util/deployment/deployment.go#L36
 const RevisionAnnotation = "deployment.kubernetes.io/revision"
 
-func DeploymentStatus(wrapper client.Kubernetes, deployment *appsv1.Deployment) RolloutStatus {
+func DeploymentStatus(wrapper client.Kubernetes, deployment *appsv1.Deployment, options *config.Options) RolloutStatus {
 	replicasSetList, err := wrapper.ListAppsV1ReplicaSets(deployment)
 	if err != nil {
 		return RolloutFatal(err)
@@ -36,7 +37,7 @@ func DeploymentStatus(wrapper client.Kubernetes, deployment *appsv1.Deployment) 
 			continue
 		}
 
-		status := TestReplicaSetStatus(wrapper, replicaSet)
+		status := TestReplicaSetStatus(wrapper, replicaSet, options)
 		aggr.Add(status)
 		if fatal := aggr.Fatal(); fatal != nil {
 			return *fatal

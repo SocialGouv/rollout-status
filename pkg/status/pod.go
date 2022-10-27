@@ -1,15 +1,17 @@
 package status
 
 import (
+	"time"
+
+	"github.com/SocialGouv/rollout-status/pkg/config"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
-func TestPodStatus(pod *v1.Pod) RolloutStatus {
+func TestPodStatus(pod *v1.Pod, options *config.Options) RolloutStatus {
 	aggr := Aggregator{}
 	for _, initStatus := range pod.Status.InitContainerStatuses {
-		status := TestContainerStatus(&initStatus)
+		status := TestContainerStatus(&initStatus, options)
 		if status.Error != nil {
 			if !status.Continue {
 				if re, ok := status.Error.(RolloutError); ok {
@@ -28,7 +30,7 @@ func TestPodStatus(pod *v1.Pod) RolloutStatus {
 	}
 
 	for _, containerStatus := range pod.Status.ContainerStatuses {
-		status := TestContainerStatus(&containerStatus)
+		status := TestContainerStatus(&containerStatus, options)
 		if status.Error != nil {
 			if !status.Continue {
 				if re, ok := status.Error.(RolloutError); ok {

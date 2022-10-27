@@ -2,9 +2,10 @@ package status
 
 import (
 	"github.com/SocialGouv/rollout-status/pkg/client"
+	"github.com/SocialGouv/rollout-status/pkg/config"
 )
 
-func TestRollout(wrapper client.Kubernetes, namespace, selector string) RolloutStatus {
+func TestRollout(wrapper client.Kubernetes, namespace, selector string, options *config.Options) RolloutStatus {
 	deployments, err := wrapper.ListAppsV1Deployments(namespace, selector)
 	if err != nil {
 		return RolloutFatal(err)
@@ -30,7 +31,7 @@ func TestRollout(wrapper client.Kubernetes, namespace, selector string) RolloutS
 	//https://github.com/kubernetes/kubernetes/blob/47daccb272c1a98c7b005dc1c19a88dbb643a3ee/staging/src/k8s.io/kubectl/pkg/polymorphichelpers/rollout_status.go#L59
 	if deployments != nil {
 		for _, deployment := range deployments.Items {
-			status := DeploymentStatus(wrapper, &deployment)
+			status := DeploymentStatus(wrapper, &deployment, options)
 			aggr.Add(status)
 			if fatal := aggr.Fatal(); fatal != nil {
 				return *fatal
@@ -40,7 +41,7 @@ func TestRollout(wrapper client.Kubernetes, namespace, selector string) RolloutS
 
 	if statefulsets != nil {
 		for _, statefulset := range statefulsets.Items {
-			status := StatefulsetStatus(wrapper, &statefulset)
+			status := StatefulsetStatus(wrapper, &statefulset, options)
 			aggr.Add(status)
 			if fatal := aggr.Fatal(); fatal != nil {
 				return *fatal
@@ -50,7 +51,7 @@ func TestRollout(wrapper client.Kubernetes, namespace, selector string) RolloutS
 
 	if jobs != nil {
 		for _, job := range jobs.Items {
-			status := JobStatus(wrapper, &job)
+			status := JobStatus(wrapper, &job, options)
 			aggr.Add(status)
 			if fatal := aggr.Fatal(); fatal != nil {
 				return *fatal

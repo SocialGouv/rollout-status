@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/SocialGouv/rollout-status/pkg/client"
+	"github.com/SocialGouv/rollout-status/pkg/config"
 	"github.com/SocialGouv/rollout-status/pkg/output"
 	"github.com/SocialGouv/rollout-status/pkg/status"
 	"k8s.io/client-go/kubernetes"
@@ -19,6 +20,7 @@ func main() {
 	selector := flag.String("selector", "", "Label selector to watch, kubectl format such as release=foo,component=frontend")
 	kubecontext := flag.String("kubecontext", "", "Kubeconfig context to use")
 	interval := flag.String("interval", "5s", "Interval between status checks")
+	ignoreSecretNotFound := flag.Bool("ignore-secret-not-found", false, "Ignore secret not found error")
 
 	var kubeconfig *string
 	kubeconfigEnv := os.Getenv("KUBECONFIG")
@@ -32,6 +34,10 @@ func main() {
 
 	flag.Parse()
 
+	options := &config.Options{
+		IgnoreSecretNotFound: *ignoreSecretNotFound,
+	}
+
 	clientset := makeClientset(*kubeconfig, *kubecontext)
 	wrapper := client.FromClientset(clientset)
 
@@ -41,7 +47,7 @@ func main() {
 	}
 
 	for {
-		rollout := status.TestRollout(wrapper, *namespace, *selector)
+		rollout := status.TestRollout(wrapper, *namespace, *selector, options)
 		if !rollout.Continue {
 			err := output.MakeOutput(os.Stdout, wrapper).PrintResult(rollout)
 			if err != nil {

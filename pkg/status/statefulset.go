@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/SocialGouv/rollout-status/pkg/client"
+	"github.com/SocialGouv/rollout-status/pkg/config"
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-func TestStatefulSetStatus(wrapper client.Kubernetes, statefulSet appsv1.StatefulSet) RolloutStatus {
+func TestStatefulSetStatus(wrapper client.Kubernetes, statefulSet appsv1.StatefulSet, options *config.Options) RolloutStatus {
 	podList, err := wrapper.ListV1StsPods(&statefulSet)
 	if err != nil {
 		return RolloutFatal(err)
@@ -15,7 +16,7 @@ func TestStatefulSetStatus(wrapper client.Kubernetes, statefulSet appsv1.Statefu
 
 	aggr := Aggregator{}
 	for _, pod := range podList.Items {
-		status := TestPodStatus(&pod)
+		status := TestPodStatus(&pod, options)
 		aggr.Add(status)
 		if fatal := aggr.Fatal(); fatal != nil {
 			return *fatal
@@ -24,7 +25,7 @@ func TestStatefulSetStatus(wrapper client.Kubernetes, statefulSet appsv1.Statefu
 	return aggr.Resolve()
 }
 
-func StatefulsetStatus(wrapper client.Kubernetes, sts *appsv1.StatefulSet) RolloutStatus {
+func StatefulsetStatus(wrapper client.Kubernetes, sts *appsv1.StatefulSet, options *config.Options) RolloutStatus {
 
 	aggr := Aggregator{}
 
@@ -62,7 +63,7 @@ func StatefulsetStatus(wrapper client.Kubernetes, sts *appsv1.StatefulSet) Rollo
 		aggr.Add(RolloutErrorProgressing(err))
 	}
 
-	status := TestStatefulSetStatus(wrapper, *sts)
+	status := TestStatefulSetStatus(wrapper, *sts, options)
 	aggr.Add(status)
 	if fatal := aggr.Fatal(); fatal != nil {
 		return *fatal

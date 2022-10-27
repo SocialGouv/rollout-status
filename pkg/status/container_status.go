@@ -1,8 +1,13 @@
 package status
 
-import v1 "k8s.io/api/core/v1"
+import (
+	"strings"
 
-func TestContainerStatus(status *v1.ContainerStatus) RolloutStatus {
+	"github.com/SocialGouv/rollout-status/pkg/config"
+	v1 "k8s.io/api/core/v1"
+)
+
+func TestContainerStatus(status *v1.ContainerStatus, options *config.Options) RolloutStatus {
 	// https://github.com/kubernetes/kubernetes/blob/4fda1207e347af92e649b59d60d48c7021ba0c54/pkg/kubelet/container/sync_result.go#L37
 	if status.State.Waiting != nil {
 		reason := status.State.Waiting.Reason
@@ -25,9 +30,16 @@ func TestContainerStatus(status *v1.ContainerStatus) RolloutStatus {
 		case "ErrImagePull":
 			fallthrough
 		case "ImagePullBackOff":
-			fallthrough
+			err := MakeRolloutError(FailureInvalidConfig, "Container %q is in %q: %v", status.Name, reason, status.State.Waiting.Message)
+			return RolloutFatal(err)
+
 		case "CreateContainerConfigError":
 			err := MakeRolloutError(FailureInvalidConfig, "Container %q is in %q: %v", status.Name, reason, status.State.Waiting.Message)
+			if options.IgnoreSecretNotFound {
+				if strings.HasPrefix(status.State.Waiting.Message, "secret ") && strings.HasSuffix(status.State.Waiting.Message, " not found") {
+					return RolloutErrorMaybeProgressing(err)
+				}
+			}
 			return RolloutFatal(err)
 		}
 	}

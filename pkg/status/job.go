@@ -4,11 +4,12 @@ import (
 	"errors"
 
 	"github.com/SocialGouv/rollout-status/pkg/client"
+	"github.com/SocialGouv/rollout-status/pkg/config"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 )
 
-func TestJobStatus(wrapper client.Kubernetes, job batchv1.Job) RolloutStatus {
+func TestJobStatus(wrapper client.Kubernetes, job batchv1.Job, options *config.Options) RolloutStatus {
 	podList, err := wrapper.ListV1JobPods(&job)
 	if err != nil {
 		return RolloutFatal(err)
@@ -16,7 +17,7 @@ func TestJobStatus(wrapper client.Kubernetes, job batchv1.Job) RolloutStatus {
 
 	aggr := Aggregator{}
 	for _, pod := range podList.Items {
-		status := TestPodStatus(&pod)
+		status := TestPodStatus(&pod, options)
 
 		aggr.Add(status)
 		if fatal := aggr.Fatal(); fatal != nil {
@@ -26,7 +27,7 @@ func TestJobStatus(wrapper client.Kubernetes, job batchv1.Job) RolloutStatus {
 	return aggr.Resolve()
 }
 
-func JobStatus(wrapper client.Kubernetes, job *batchv1.Job) RolloutStatus {
+func JobStatus(wrapper client.Kubernetes, job *batchv1.Job, options *config.Options) RolloutStatus {
 
 	aggr := Aggregator{}
 
@@ -36,13 +37,13 @@ func JobStatus(wrapper client.Kubernetes, job *batchv1.Job) RolloutStatus {
 			return aggr.Resolve()
 		}
 		if condition.Type == batchv1.JobFailed && condition.Status == v1.ConditionTrue {
-			status := TestJobStatus(wrapper, *job)
+			status := TestJobStatus(wrapper, *job, options)
 			aggr.Add(status)
 			return aggr.Resolve()
 		}
 	}
 
-	status := TestJobStatus(wrapper, *job)
+	status := TestJobStatus(wrapper, *job, options)
 	if status.Error != nil {
 		if status.MaybeContinue {
 			aggr.Add(RolloutErrorProgressing(status.Error))
