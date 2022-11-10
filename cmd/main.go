@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/SocialGouv/rollout-status/pkg/client"
@@ -11,6 +10,7 @@ import (
 	"github.com/SocialGouv/rollout-status/pkg/output"
 	"github.com/SocialGouv/rollout-status/pkg/status"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -26,8 +26,6 @@ func main() {
 	kubeconfigEnv := os.Getenv("KUBECONFIG")
 	if kubeconfigEnv != "" {
 		kubeconfig = flag.String("kubeconfig", kubeconfigEnv, "(optional) absolute path to the kubeconfig file")
-	} else if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	} else {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
@@ -64,9 +62,17 @@ func main() {
 }
 
 func makeClientset(kubeconfigPath string, kubecontext string) *kubernetes.Clientset {
-	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
-		&clientcmd.ConfigOverrides{Context: clientcmdapi.Context{Cluster: kubecontext}}).ClientConfig()
+	var config *rest.Config
+	var err error
+	if kubeconfigPath != "" {
+		config, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+			&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
+			&clientcmd.ConfigOverrides{Context: clientcmdapi.Context{Cluster: kubecontext}}).ClientConfig()
+	} else {
+		config, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+			clientcmd.NewDefaultClientConfigLoadingRules(),
+			&clientcmd.ConfigOverrides{Context: clientcmdapi.Context{Cluster: kubecontext}}).ClientConfig()
+	}
 
 	if err != nil {
 		panic(err.Error())
