@@ -3,6 +3,7 @@ package main_test
 import (
 	"testing"
 
+	"github.com/SocialGouv/rollout-status/pkg/config"
 	"github.com/SocialGouv/rollout-status/pkg/status"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,7 +14,7 @@ const IgnoredByMock = "any-value"
 
 func TestNotFound(t *testing.T) {
 	wrapper := mockWrapper([]appsv1.Deployment{}, []appsv1.StatefulSet{}, []appsv1.ReplicaSet{}, []v1.Pod{})
-	rolloutStatus := status.TestRollout(wrapper, "any-ns", "foo=bar")
+	rolloutStatus := status.TestRollout(wrapper, "any-ns", "foo=bar", &config.Options{})
 
 	re, ok := rolloutStatus.Error.(status.RolloutError)
 	assert.True(t, ok)
@@ -24,7 +25,7 @@ func TestNotFound(t *testing.T) {
 
 func TestSuccess(t *testing.T) {
 	wrapper := mockWrapperFromAssets(t.Name())
-	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock)
+	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock, &config.Options{})
 
 	assert.False(t, rolloutStatus.Continue)
 	assert.Nil(t, rolloutStatus.Error)
@@ -32,7 +33,7 @@ func TestSuccess(t *testing.T) {
 
 func TestContainerCreating(t *testing.T) {
 	wrapper := mockWrapperFromAssets(t.Name())
-	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock)
+	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock, &config.Options{})
 
 	re, ok := rolloutStatus.Error.(status.RolloutError)
 	assert.True(t, ok)
@@ -43,7 +44,7 @@ func TestContainerCreating(t *testing.T) {
 
 func TestInitContainer(t *testing.T) {
 	wrapper := mockWrapperFromAssets(t.Name())
-	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock)
+	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock, &config.Options{})
 
 	re, ok := rolloutStatus.Error.(status.RolloutError)
 	assert.True(t, ok)
@@ -54,7 +55,7 @@ func TestInitContainer(t *testing.T) {
 
 func assertRolloutFailure(t *testing.T, expectedMessage string) {
 	wrapper := mockWrapperFromAssets(t.Name())
-	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock)
+	rolloutStatus := status.TestRollout(wrapper, IgnoredByMock, IgnoredByMock, &config.Options{})
 
 	re, ok := rolloutStatus.Error.(status.RolloutError)
 	assert.True(t, ok)
