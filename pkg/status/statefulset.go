@@ -1,7 +1,6 @@
 package status
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/SocialGouv/rollout-status/pkg/client"
@@ -18,18 +17,7 @@ func TestStatefulSetStatus(wrapper client.Kubernetes, statefulSet appsv1.Statefu
 	aggr := Aggregator{}
 	for _, pod := range podList.Items {
 		status := TestPodStatus(&pod, options)
-
-		if status.Error != nil {
-			if status.MaybeContinue {
-				aggr.Add(RolloutErrorProgressing(status.Error))
-			} else {
-				aggr.Add(status)
-			}
-		} else {
-			err := errors.New("")
-			aggr.Add(RolloutErrorProgressing(err))
-		}
-
+		aggr.Add(status)
 		if fatal := aggr.Fatal(); fatal != nil {
 			return *fatal
 		}
