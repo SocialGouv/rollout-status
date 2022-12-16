@@ -16,15 +16,9 @@ func TestStatefulSetStatus(wrapper client.Kubernetes, statefulSet appsv1.Statefu
 
 	aggr := Aggregator{}
 	for _, pod := range podList.Items {
-		status := TestPodStatus(&pod, options)
+		status := TestPodStatus(&pod, options, ResourceTypeStatefulSet)
 
-		if status.Error != nil {
-			if status.MaybeContinue {
-				aggr.Add(RolloutErrorProgressing(status.Error))
-			} else {
-				aggr.Add(status)
-			}
-		}
+		aggr.Add(status)
 
 		if fatal := aggr.Fatal(); fatal != nil {
 			return *fatal

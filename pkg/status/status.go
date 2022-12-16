@@ -18,9 +18,8 @@ const (
 )
 
 type RolloutStatus struct {
-	MaybeContinue bool
-	Continue      bool
-	Error         error
+	Continue bool
+	Error    error
 }
 
 // Rollout is not completed and it will not succeed with a high certainty.
@@ -39,14 +38,6 @@ func RolloutErrorProgressing(err error) RolloutStatus {
 	return RolloutStatus{
 		Continue: true,
 		Error:    err,
-	}
-}
-
-func RolloutErrorMaybeProgressing(err error) RolloutStatus {
-	return RolloutStatus{
-		Continue:      false,
-		MaybeContinue: true,
-		Error:         err,
 	}
 }
 

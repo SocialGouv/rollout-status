@@ -8,10 +8,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestPodStatus(pod *v1.Pod, options *config.Options) RolloutStatus {
+func TestPodStatus(pod *v1.Pod, options *config.Options, resourceType ResourceType) RolloutStatus {
 	aggr := Aggregator{}
 	for _, initStatus := range pod.Status.InitContainerStatuses {
-		status := TestContainerStatus(&initStatus, options)
+		status := TestContainerStatus(&initStatus, options, resourceType)
 		if status.Error != nil {
 			if !status.Continue {
 				if re, ok := status.Error.(RolloutError); ok {
@@ -30,7 +30,7 @@ func TestPodStatus(pod *v1.Pod, options *config.Options) RolloutStatus {
 	}
 
 	for _, containerStatus := range pod.Status.ContainerStatuses {
-		status := TestContainerStatus(&containerStatus, options)
+		status := TestContainerStatus(&containerStatus, options, resourceType)
 		if status.Error != nil {
 			if !status.Continue {
 				if re, ok := status.Error.(RolloutError); ok {

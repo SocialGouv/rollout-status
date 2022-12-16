@@ -22,7 +22,7 @@ func TestReplicaSetStatus(wrapper client.Kubernetes, replicaSet appsv1.ReplicaSe
 
 	aggr := Aggregator{}
 	for _, pod := range podList.Items {
-		status := TestPodStatus(&pod, options)
+		status := TestPodStatus(&pod, options, ResourceTypeDeployment)
 		aggr.Add(status)
 		if fatal := aggr.Fatal(); fatal != nil {
 			return *fatal

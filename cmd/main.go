@@ -20,6 +20,7 @@ func main() {
 	selector := flag.String("selector", "", "Label selector to watch, kubectl format such as release=foo,component=frontend")
 	kubecontext := flag.String("kubecontext", "", "Kubeconfig context to use")
 	interval := flag.String("interval", "5s", "Interval between status checks")
+	retryLimit := flag.Int64("retry-limit", 6, "Retry limit for deployments and statefulsets, default 6, -1 to disable")
 	ignoreSecretNotFound := flag.Bool("ignore-secret-not-found", false, "Ignore secret not found error")
 
 	var kubeconfig *string
@@ -34,6 +35,7 @@ func main() {
 
 	options := &config.Options{
 		IgnoreSecretNotFound: *ignoreSecretNotFound,
+		RetryLimit:           int32(*retryLimit),
 	}
 
 	clientset := makeClientset(*kubeconfig, *kubecontext)

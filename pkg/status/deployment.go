@@ -38,7 +38,9 @@ func DeploymentStatus(wrapper client.Kubernetes, deployment *appsv1.Deployment, 
 		}
 
 		status := TestReplicaSetStatus(wrapper, replicaSet, options)
+
 		aggr.Add(status)
+
 		if fatal := aggr.Fatal(); fatal != nil {
 			return *fatal
 		}
