@@ -1,6 +1,8 @@
 package status
 
 import (
+	"errors"
+
 	"github.com/SocialGouv/rollout-status/pkg/client"
 	"github.com/SocialGouv/rollout-status/pkg/config"
 	batchv1 "k8s.io/api/batch/v1"
@@ -42,7 +44,16 @@ func JobStatus(wrapper client.Kubernetes, job *batchv1.Job, options *config.Opti
 	}
 
 	status := TestJobStatus(wrapper, *job, options)
-	aggr.Add(status)
+	if status.Error != nil {
+		if status.Continue {
+			aggr.Add(RolloutErrorProgressing(status.Error))
+		} else {
+			aggr.Add(status)
+		}
+	} else {
+		err := errors.New("")
+		aggr.Add(RolloutErrorProgressing(err))
+	}
 
 	if fatal := aggr.Fatal(); fatal != nil {
 		return *fatal
