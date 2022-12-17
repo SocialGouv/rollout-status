@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sts
+  labels:
+    type: sts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: sts-rand
+          image: perl
+          command:
+            - /bin/bash
+            - -c
+            - |
+              random() {
+                min="$1"
+                max="$2"  
+                range=$((max - min + 1))
+                rand=$((min + (RANDOM % range)))
+                echo "$rand"
+              }
+
+              sleep 2
+              if [ "`random 0 2`" = "2"  ]; then
+                touch /tmp/success
+                tail -f
+              fi
+              echo Failed!!!
+              exit 1
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - test -S /tmp/success
+      restartPolicy: Always
+  serviceName: nginx

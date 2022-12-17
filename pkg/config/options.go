@@ -1,5 +1,7 @@
 package config
 
 type Options struct {
-	IgnoreSecretNotFound bool
+	IgnoreSecretNotFound   bool
+	RetryLimit             int32
+	PendingDeadLineSeconds int
 }

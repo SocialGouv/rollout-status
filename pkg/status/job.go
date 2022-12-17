@@ -17,7 +17,7 @@ func TestJobStatus(wrapper client.Kubernetes, job batchv1.Job, options *config.O
 
 	aggr := Aggregator{}
 	for _, pod := range podList.Items {
-		status := TestPodStatus(&pod, options)
+		status := TestPodStatus(&pod, options, ResourceTypeJob)
 
 		aggr.Add(status)
 		if fatal := aggr.Fatal(); fatal != nil {
@@ -38,7 +38,11 @@ func JobStatus(wrapper client.Kubernetes, job *batchv1.Job, options *config.Opti
 		}
 		if condition.Type == batchv1.JobFailed && condition.Status == v1.ConditionTrue {
 			status := TestJobStatus(wrapper, *job, options)
-			aggr.Add(status)
+			err := status.Error
+			if err == nil {
+				err = errors.New("")
+			}
+			aggr.Add(RolloutFatal(err))
 			return aggr.Resolve()
 		}
 	}
@@ -47,8 +51,6 @@ func JobStatus(wrapper client.Kubernetes, job *batchv1.Job, options *config.Opti
 	if status.Error != nil {
 		if status.MaybeContinue {
 			aggr.Add(RolloutErrorProgressing(status.Error))
-		} else {
-			aggr.Add(status)
 		}
 	} else {
 		err := errors.New("")

@@ -8,10 +8,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestPodStatus(pod *v1.Pod, options *config.Options) RolloutStatus {
+func TestPodStatus(pod *v1.Pod, options *config.Options, resourceType ResourceType) RolloutStatus {
 	aggr := Aggregator{}
 	for _, initStatus := range pod.Status.InitContainerStatuses {
-		status := TestContainerStatus(&initStatus, options)
+		status := TestContainerStatus(&initStatus, options, resourceType)
 		if status.Error != nil {
 			if !status.Continue {
 				if re, ok := status.Error.(RolloutError); ok {
@@ -30,7 +30,7 @@ func TestPodStatus(pod *v1.Pod, options *config.Options) RolloutStatus {
 	}
 
 	for _, containerStatus := range pod.Status.ContainerStatuses {
-		status := TestContainerStatus(&containerStatus, options)
+		status := TestContainerStatus(&containerStatus, options, resourceType)
 		if status.Error != nil {
 			if !status.Continue {
 				if re, ok := status.Error.(RolloutError); ok {
@@ -56,8 +56,13 @@ func TestPodStatus(pod *v1.Pod, options *config.Options) RolloutStatus {
 		for _, condition := range pod.Status.Conditions {
 			// fail if the pod is pending for X time
 			if condition.Type == v1.PodScheduled {
-				deadline := metav1.NewTime(time.Now().Add(time.Minute * -3)) // TODO configure
 				err := MakeRolloutError(FailureScheduling, "Failed to schedule pod: %v", condition.Message)
+
+				if options.PendingDeadLineSeconds == -1 {
+					return RolloutErrorProgressing(err)
+				}
+
+				deadline := metav1.NewTime(time.Now().Add(time.Second * -1 * time.Duration(options.PendingDeadLineSeconds))) // TODO configure
 
 				if condition.LastTransitionTime.Before(&deadline) {
 					return RolloutFatal(err)

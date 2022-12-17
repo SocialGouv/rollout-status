@@ -20,6 +20,9 @@ func main() {
 	selector := flag.String("selector", "", "Label selector to watch, kubectl format such as release=foo,component=frontend")
 	kubecontext := flag.String("kubecontext", "", "Kubeconfig context to use")
 	interval := flag.String("interval", "5s", "Interval between status checks")
+	retryLimit := flag.Int64("retry-limit", 6, "Retry limit for deployments and statefulsets, default 6, -1 to disable")
+	pendingDeadLineSeconds := flag.Int("pending-deadline", 180, "Pending deadLine in seconds, default 180, -1 to disable")
+
 	ignoreSecretNotFound := flag.Bool("ignore-secret-not-found", false, "Ignore secret not found error")
 
 	var kubeconfig *string
@@ -33,7 +36,9 @@ func main() {
 	flag.Parse()
 
 	options := &config.Options{
-		IgnoreSecretNotFound: *ignoreSecretNotFound,
+		IgnoreSecretNotFound:   *ignoreSecretNotFound,
+		RetryLimit:             int32(*retryLimit),
+		PendingDeadLineSeconds: *pendingDeadLineSeconds,
 	}
 
 	clientset := makeClientset(*kubeconfig, *kubecontext)
