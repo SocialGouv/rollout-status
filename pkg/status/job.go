@@ -51,6 +51,8 @@ func JobStatus(wrapper client.Kubernetes, job *batchv1.Job, options *config.Opti
 	if status.Error != nil {
 		if status.MaybeContinue {
 			aggr.Add(RolloutErrorProgressing(status.Error))
+		} else {
+			aggr.Add(status)
 		}
 	} else {
 		err := errors.New("")
