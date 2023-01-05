@@ -3,22 +3,35 @@ package status
 import (
 	"github.com/SocialGouv/rollout-status/pkg/client"
 	"github.com/SocialGouv/rollout-status/pkg/config"
+	v1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 )
 
 func TestRollout(wrapper client.Kubernetes, namespace, selector string, options *config.Options) RolloutStatus {
-	deployments, err := wrapper.ListAppsV1Deployments(namespace, selector)
-	if err != nil {
-		return RolloutFatal(err)
+	var err error
+
+	var deployments *v1.DeploymentList
+	if options.KindFilter == config.NoKindFilter || options.KindFilter == config.DeploymentKindFilter {
+		deployments, err = wrapper.ListAppsV1Deployments(namespace, selector)
+		if err != nil {
+			return RolloutFatal(err)
+		}
 	}
 
-	statefulsets, err := wrapper.ListAppsV1StatefulSets(namespace, selector)
-	if err != nil {
-		return RolloutFatal(err)
+	var statefulsets *v1.StatefulSetList
+	if options.KindFilter == config.NoKindFilter || options.KindFilter == config.StatefulsetKindFilter {
+		statefulsets, err = wrapper.ListAppsV1StatefulSets(namespace, selector)
+		if err != nil {
+			return RolloutFatal(err)
+		}
 	}
 
-	jobs, err := wrapper.ListBatchV1Jobs(namespace, selector)
-	if err != nil {
-		return RolloutFatal(err)
+	var jobs *batchv1.JobList
+	if options.KindFilter == config.NoKindFilter || options.KindFilter == config.JobKindFilter {
+		jobs, err = wrapper.ListBatchV1Jobs(namespace, selector)
+		if err != nil {
+			return RolloutFatal(err)
+		}
 	}
 
 	if (deployments == nil || len(deployments.Items) == 0) && (statefulsets == nil || len(statefulsets.Items) == 0) && (jobs == nil || len(jobs.Items) == 0) {

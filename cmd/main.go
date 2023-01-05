@@ -22,6 +22,7 @@ func main() {
 	interval := flag.String("interval", "5s", "Interval between status checks")
 	retryLimit := flag.Int64("retry-limit", 6, "Retry limit for deployments and statefulsets, default 6, -1 to disable")
 	pendingDeadLineSeconds := flag.Int("pending-deadline", 180, "Pending deadLine in seconds, default 180, -1 to disable")
+	kindFilter := flag.String("kind-filter", "", "Kind filter, one of deployment, job or statefulset")
 
 	ignoreSecretNotFound := flag.Bool("ignore-secret-not-found", false, "Ignore secret not found error")
 
@@ -39,6 +40,7 @@ func main() {
 		IgnoreSecretNotFound:   *ignoreSecretNotFound,
 		RetryLimit:             int32(*retryLimit),
 		PendingDeadLineSeconds: *pendingDeadLineSeconds,
+		KindFilter:             config.KindFilter(*kindFilter),
 	}
 
 	clientset := makeClientset(*kubeconfig, *kubecontext)
