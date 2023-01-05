@@ -62,7 +62,7 @@ func TestPodStatus(pod *v1.Pod, options *config.Options, resourceType ResourceTy
 					return RolloutErrorProgressing(err)
 				}
 
-				deadline := metav1.NewTime(time.Now().Add(time.Second * -1 * time.Duration(options.PendingDeadLineSeconds))) // TODO configure
+				deadline := metav1.NewTime(time.Now().Add(time.Second * time.Duration(options.PendingDeadLineSeconds)))
 
 				if condition.LastTransitionTime.Before(&deadline) {
 					return RolloutFatal(err)
