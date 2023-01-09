@@ -29,7 +29,14 @@ func TestContainerStatus(status *v1.ContainerStatus, options *config.Options, re
 			}
 		case "RunContainerError":
 			err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q: %v", status.Name, reason, status.State.Waiting.Message)
-			return RolloutErrorMaybeProgressing(err)
+			if ((resourceType == ResourceTypeDeployment || resourceType == ResourceTypeStatefulSet) &&
+				(status.RestartCount <= options.RetryLimit || options.RetryLimit == -1)) ||
+				resourceType == ResourceTypeJob {
+				return RolloutErrorProgressing(err)
+			} else {
+				err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q: %v", status.Name, reason, status.State.Waiting.Message)
+				return RolloutErrorMaybeProgressing(err)
+			}
 
 		case "ErrImagePull":
 			fallthrough
