@@ -34,7 +34,6 @@ func TestContainerStatus(status *v1.ContainerStatus, options *config.Options, re
 				resourceType == ResourceTypeJob {
 				return RolloutErrorProgressing(err)
 			} else {
-				err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q: %v", status.Name, reason, status.State.Waiting.Message)
 				return RolloutErrorMaybeProgressing(err)
 			}
 
@@ -60,7 +59,13 @@ func TestContainerStatus(status *v1.ContainerStatus, options *config.Options, re
 		switch reason {
 		case "Error":
 			err := MakeRolloutError(FailureProcessCrashing, "Container %q is in %q", status.Name, reason)
-			return RolloutErrorMaybeProgressing(err)
+			if ((resourceType == ResourceTypeDeployment || resourceType == ResourceTypeStatefulSet) &&
+				(status.RestartCount <= options.RetryLimit || options.RetryLimit == -1)) ||
+				resourceType == ResourceTypeJob {
+				return RolloutErrorProgressing(err)
+			} else {
+				return RolloutErrorMaybeProgressing(err)
+			}
 		case "OOMKilled":
 			err := MakeRolloutError(FailureResourceLimitsExceeded, "Container %q is in %q", status.Name, reason)
 			return RolloutFatal(err)
