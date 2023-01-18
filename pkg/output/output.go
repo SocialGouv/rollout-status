@@ -38,7 +38,7 @@ func (o Output) errorOutputFrom(err error) *errorOutput {
 			Type:    ErrorTypeRollout,
 		}
 
-		if errOut.Code == status.FailureProcessCrashing {
+		if errOut.Code == status.FailureProcessCrashing && re.Namespace != "" && re.Pod != "" && re.Container != "" {
 			logBytes, err := o.wrapper.TrailContainerLogs(re.Namespace, re.Pod, re.Container)
 			if err != nil {
 				return o.errorOutputFrom(err)

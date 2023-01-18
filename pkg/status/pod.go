@@ -13,7 +13,7 @@ func TestPodStatus(pod *v1.Pod, options *config.Options, resourceType ResourceTy
 	for _, initStatus := range pod.Status.InitContainerStatuses {
 		status := TestContainerStatus(&initStatus, options, resourceType)
 		if status.Error != nil {
-			if !status.Continue {
+			if !status.Continue || resourceType == ResourceTypeJob {
 				if re, ok := status.Error.(RolloutError); ok {
 					re.Namespace = pod.Namespace
 					re.Pod = pod.Name
@@ -32,7 +32,7 @@ func TestPodStatus(pod *v1.Pod, options *config.Options, resourceType ResourceTy
 	for _, containerStatus := range pod.Status.ContainerStatuses {
 		status := TestContainerStatus(&containerStatus, options, resourceType)
 		if status.Error != nil {
-			if !status.Continue {
+			if !status.Continue || resourceType == ResourceTypeJob {
 				if re, ok := status.Error.(RolloutError); ok {
 					re.Namespace = pod.Namespace
 					re.Pod = pod.Name
