@@ -12,7 +12,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 func main() {
@@ -74,11 +73,11 @@ func makeClientset(kubeconfigPath string, kubecontext string) *kubernetes.Client
 	if kubeconfigPath != "" {
 		config, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 			&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
-			&clientcmd.ConfigOverrides{Context: clientcmdapi.Context{Cluster: kubecontext}}).ClientConfig()
+			&clientcmd.ConfigOverrides{CurrentContext: kubecontext}).ClientConfig()
 	} else {
 		config, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 			clientcmd.NewDefaultClientConfigLoadingRules(),
-			&clientcmd.ConfigOverrides{Context: clientcmdapi.Context{Cluster: kubecontext}}).ClientConfig()
+			&clientcmd.ConfigOverrides{CurrentContext: kubecontext}).ClientConfig()
 	}
 
 	if err != nil {
