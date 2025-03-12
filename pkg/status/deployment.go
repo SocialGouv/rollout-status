@@ -32,8 +32,7 @@ func DeploymentStatus(wrapper client.Kubernetes, deployment *appsv1.Deployment, 
 
 		if rsRevision != lastRevision {
 			// RS that is live and we no longer want
-			// TODO make sure there are no more pods running in this RS
-			// or older RS or RS that never became live and was overwritten
+			// Check if there are still pods running in this old ReplicaSet
 			continue
 		}
 
@@ -65,6 +64,28 @@ func DeploymentStatus(wrapper client.Kubernetes, deployment *appsv1.Deployment, 
 	if deployment.Status.AvailableReplicas < deployment.Status.UpdatedReplicas {
 		err := fmt.Errorf("Waiting for deployment %q rollout to finish: %d of %d updated replicas are available...\n", deployment.Name, deployment.Status.AvailableReplicas, deployment.Status.UpdatedReplicas)
 		aggr.Add(RolloutErrorProgressing(err))
+	}
+
+	// Check if there are still pods running in old ReplicaSets
+	for _, replicaSet := range replicasSetList.Items {
+		rsRevision, ok := replicaSet.Annotations[RevisionAnnotation]
+		if !ok {
+			continue // Already handled above
+		}
+
+		if rsRevision != lastRevision {
+			// This is an old ReplicaSet, check if it still has running pods
+			podList, err := wrapper.ListV1Pods(&replicaSet)
+			if err != nil {
+				return RolloutFatal(err)
+			}
+
+			if len(podList.Items) > 0 {
+				err := fmt.Errorf("Waiting for deployment %q rollout to finish: %d pods from old ReplicaSets are still running...\n",
+					deployment.Name, len(podList.Items))
+				aggr.Add(RolloutErrorProgressing(err))
+			}
+		}
 	}
 
 	return aggr.Resolve()
