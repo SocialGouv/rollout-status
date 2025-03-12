@@ -89,7 +89,22 @@ func (client StaticClient) ListBatchV1Jobs(namespace, selector string) (*batchv1
 }
 
 func (client StaticClient) ListV1Pods(replicasSet *appsv1.ReplicaSet) (*v1.PodList, error) {
-	return client.PodList, nil
+	if replicasSet == nil {
+		return client.PodList, nil
+	}
+
+	// Filter pods to only include those owned by this ReplicaSet
+	var filteredPods []v1.Pod
+	for _, pod := range client.PodList.Items {
+		for _, ownerRef := range pod.OwnerReferences {
+			if ownerRef.Kind == "ReplicaSet" && ownerRef.Name == replicasSet.Name {
+				filteredPods = append(filteredPods, pod)
+				break
+			}
+		}
+	}
+
+	return &v1.PodList{Items: filteredPods}, nil
 }
 
 func (client StaticClient) ListV1StsPods(sts *appsv1.StatefulSet) (*v1.PodList, error) {
